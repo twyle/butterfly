@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from ..models.post import Post
 from ..schemas.post import (
-    CreatePost, GetPosts, GetPost
+    CreatePost, GetPosts, GetPost, UpdatePost
 )
 from werkzeug.datastructures import FileStorage
 from flask import current_app
@@ -85,6 +85,20 @@ def create_post(post_data: CreatePost, post_image: dict, session: Session):
         db.refresh(post)
     return post
 
+def update_post(post_data: UpdatePost, post_image: dict, session: Session):
+    post_image_url: str = save_post_photo(post_image)
+    with session() as db:
+        post: Post = db.query(Post).filter(Post.id == post_data.post_id).first()
+        if post_data.location:
+            post.location = post_data.location
+        if post_data.text:
+            post.text = post_data.text
+        if post_image_url:
+            post.image_url = post_image_url
+        db.commit()
+        db.refresh(post)
+    return post
+
 def get_post(session: Session, post_data: GetPost):
     with session() as db:
         post = db.query(Post).filter(Post.id == post_data.post_id).first()
@@ -94,3 +108,11 @@ def get_posts(session: Session, post_data: GetPosts):
     with session() as db:
         posts = db.query(Post).offset(post_data.offset).limit(post_data.limit).all()
     return posts
+
+def delete_post(session: Session, post_data: GetPost):
+    with session() as db:
+        post = db.query(Post).filter(Post.id == post_data.post_id).first()
+        db.delete(post)
+        db.commit()
+        
+    return post

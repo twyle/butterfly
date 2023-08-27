@@ -12,6 +12,12 @@ class PostBase(BaseModel):
 class CreatePost(PostBase):
     pass
 
+class UpdatePost(BaseModel):
+    post_id: str
+    author_id: str
+    location: Optional[str]
+    text: Optional[str]
+
 class CreatedPost(PostBase):
     date_published: datetime
     id: str

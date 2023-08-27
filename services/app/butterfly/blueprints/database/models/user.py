@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from ..database import Base
 from flask import current_app
 from ....extensions.extensions import bcrypt
@@ -24,6 +24,12 @@ class User(Base):
     registration_date: Mapped[datetime] = mapped_column(default_factory=datetime.utcnow)
     role: Mapped[str] = mapped_column(default='user')
     activated: Mapped[bool] = mapped_column(default=False)
+    
+    posts = relationship('Post', back_populates='author')
+    bookmarks = relationship('Bookmark', back_populates='author')
+    likes = relationship('Like', back_populates='author')
+    comments = relationship('Comment', back_populates='author')
+    views = relationship('View', back_populates='author')
     
     @staticmethod
     def hash_password(password: str) -> str:

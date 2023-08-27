@@ -137,6 +137,11 @@ def delete():
             id=user.id
         )
         return resp.model_dump_json(indent=4), HTTPStatus.OK
+    
+@auth.route("/get", methods=["DELETE", "GET"])
+def get():
+    """Get a logged in user."""
+    pass
 
 
 @auth.route("/all_users", methods=["GET"])

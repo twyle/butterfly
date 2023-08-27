@@ -1,0 +1,13 @@
+python-dotenv==1.0.0
+gunicorn==21.2.0
+flask==2.3.3
+pydantic==2.3.0
+pydantic-settings==2.0.3
+sqlalchemy==2.0.20
+sqlalchemy-utils==0.41.1
+redis==5.0.0
+elasticsearch==7.17.7
+celery==5.3.1
+pyjwt==2.8.0
+flask-bcrypt==4.0.1
+  

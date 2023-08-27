@@ -11,5 +11,5 @@ class Bookmark(Base):
     post_id: Mapped[str] = mapped_column(ForeignKey('posts.id'), primary_key=True)
     bookmark_date: Mapped[datetime] = mapped_column(default_factory=datetime.utcnow)
     
-    author = relationship('Author', back_populates='bookmarks')
+    author = relationship('User', back_populates='bookmarks')
     post = relationship('Post', back_populates='bookmarks')

@@ -1,6 +1,6 @@
 from flask.cli import FlaskGroup
 from butterfly.blueprints.database.models import (
-    User, Post
+    User, Post, Bookmark, Like, View, Comment
 )
 from butterfly.blueprints.database.database import create_all, drop_all
 from butterfly import create_app

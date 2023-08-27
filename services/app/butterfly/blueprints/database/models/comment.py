@@ -12,5 +12,5 @@ class Comment(Base):
     comment_text: Mapped[str]
     comment_date: Mapped[datetime] = mapped_column(default_factory=datetime.utcnow)
     
-    author = relationship('Author', back_populates='comments')
+    author = relationship('User', back_populates='comments')
     post = relationship('Post', back_populates='comments')

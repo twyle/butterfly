@@ -15,7 +15,7 @@ class Post(Base):
     date_published: Mapped[datetime] = mapped_column(default_factory=datetime.utcnow)
     date_updated: Mapped[datetime] = mapped_column(onupdate=datetime.utcnow, default_factory=datetime.utcnow)
     
-    author = relationship('Author', back_populates='posts')
+    author = relationship('User', back_populates='posts')
     bookmarks = relationship('Bookmark', back_populates='post')
     likes = relationship('Like', back_populates='post')
     comments = relationship('Comment', back_populates='post')

@@ -11,5 +11,5 @@ class Like(Base):
     post_id: Mapped[str] = mapped_column(ForeignKey('posts.id'), primary_key=True)
     like_date: Mapped[datetime] = mapped_column(default_factory=datetime.utcnow)
     
-    author = relationship('Author', back_populates='likes')
+    author = relationship('User', back_populates='likes')
     post = relationship('Post', back_populates='likes')

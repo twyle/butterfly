@@ -11,5 +11,5 @@ class View(Base):
     post_id: Mapped[str] = mapped_column(ForeignKey('posts.id'), primary_key=True)
     view_date: Mapped[datetime] = mapped_column(default_factory=datetime.utcnow)
     
-    author = relationship('Author', back_populates='views')
+    author = relationship('User', back_populates='views')
     post = relationship('Post', back_populates='views')

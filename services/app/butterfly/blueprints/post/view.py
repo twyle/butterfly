@@ -14,6 +14,17 @@ from sqlalchemy.exc import OperationalError, IntegrityError
 from ..database.models.user import User
 from ..database.crud.user import get_user
 from ..database.schemas.user import GetUser
+from ..database.models.bookmark import Bookmark
+from ..database.crud.bookmark import list_post_bookmarks
+from ..database.schemas.activity import ActivityCreated, RepeatableActivityCreated, CommentCreated
+from ..database.crud.like import list_post_likes
+from ..database.models.like import Like
+from ..database.models.comment import Comment
+from ..database.models.view import View
+from ..database.crud.view import (
+    list_post_views
+)
+from ..database.crud.comment import list_post_comments
 
 post = Blueprint("post", __name__)
 
@@ -170,22 +181,109 @@ def get_all_posts():
 @post.route("/likes", methods=["GET"])
 def get_post_likes():
     """Get a posts likes."""
-    return jsonify({"Resp": "greate"}), HTTPStatus.OK
+    try:
+        post_data = GetPost(post_id=request.args.get('post_id'))
+    except ValidationError:
+        return {'error': 'Invalid input: you probably did not include the post id.'}, HTTPStatus.BAD_REQUEST
+    try:
+        post: Post = get_post(session=get_db, post_data=post_data)
+        if not post:
+            return {'Error': f'post with id {post_data.post_id} does not exists'}, HTTPStatus.NOT_FOUND
+        likes: list[Bookmark] = list_post_likes(session=get_db, post_data=post_data)
+    except (OperationalError, IntegrityError) as e:
+        print(e)
+        # Send email to
+        return {'Error': 'The application is experiencing a tempoary error. Please try again in a few minutes.'}, HTTPStatus.INTERNAL_SERVER_ERROR
+    resp = [
+        ActivityCreated(
+            user_id=like.author_id,
+            post_id=like.post_id,
+            date_created=like.like_date
+        ).model_dump()
+        for like in likes
+    ]
+    return resp, HTTPStatus.OK
 
 
-@post.route("/bookmark", methods=["GET"])
+@post.route("/bookmarks", methods=["GET"])
 def get_post_bookmarks():
     """Bookmark a single post."""
-    return jsonify({"Resp": "greate"}), HTTPStatus.CREATED
+    try:
+        post_data = GetPost(post_id=request.args.get('post_id'))
+    except ValidationError:
+        return {'error': 'Invalid input: you probably did not include the post id.'}, HTTPStatus.BAD_REQUEST
+    try:
+        post: Post = get_post(session=get_db, post_data=post_data)
+        if not post:
+            return {'Error': f'post with id {post_data.post_id} does not exists'}, HTTPStatus.NOT_FOUND
+        bookmarks: list[Bookmark] = list_post_bookmarks(session=get_db, post_data=post_data)
+    except (OperationalError, IntegrityError) as e:
+        print(e)
+        # Send email to
+        return {'Error': 'The application is experiencing a tempoary error. Please try again in a few minutes.'}, HTTPStatus.INTERNAL_SERVER_ERROR
+    resp = [
+        ActivityCreated(
+            user_id=bookmark.author_id,
+            post_id=bookmark.post_id,
+            date_created=bookmark.bookmark_date
+        ).model_dump()
+        for bookmark in bookmarks
+    ]
+    return resp, HTTPStatus.OK
 
 
 @post.route("/comments", methods=["GET"])
 def get_post_comments():
     """Get a posts comments."""
-    return jsonify({"Resp": "greate"}), HTTPStatus.OK
+    try:
+        post_data = GetPost(post_id=request.args.get('post_id'))
+    except ValidationError:
+        return {'error': 'Invalid input: you probably did not include the post id.'}, HTTPStatus.BAD_REQUEST
+    try:
+        post: Post = get_post(session=get_db, post_data=post_data)
+        if not post:
+            return {'Error': f'post with id {post_data.post_id} does not exists'}, HTTPStatus.NOT_FOUND
+        comments: list[Comment] = list_post_comments(session=get_db, post_data=post_data)
+    except (OperationalError, IntegrityError) as e:
+        print(e)
+        # Send email to
+        return {'Error': 'The application is experiencing a tempoary error. Please try again in a few minutes.'}, HTTPStatus.INTERNAL_SERVER_ERROR
+    resp = [
+        CommentCreated(
+            user_id=comment.author_id,
+            post_id=comment.post_id,
+            date_created=comment.comment_date,
+            comment_id=comment.id,
+            comment=comment.comment_text
+        ).model_dump()
+        for comment in comments
+    ]
+    return resp, HTTPStatus.OK
 
 
 @post.route("/views", methods=["GET"])
 def get_post_views():
     """Get a posts comments."""
-    return jsonify({"Resp": "greate"}), HTTPStatus.OK
+    try:
+        post_data = GetPost(post_id=request.args.get('post_id'))
+    except ValidationError:
+        return {'error': 'Invalid input: you probably did not include the post id.'}, HTTPStatus.BAD_REQUEST
+    try:
+        post: Post = get_post(session=get_db, post_data=post_data)
+        if not post:
+            return {'Error': f'post with id {post_data.post_id} does not exists'}, HTTPStatus.NOT_FOUND
+        views: list[View] = list_post_views(session=get_db, post_data=post_data)
+    except (OperationalError, IntegrityError) as e:
+        print(e)
+        # Send email to
+        return {'Error': 'The application is experiencing a tempoary error. Please try again in a few minutes.'}, HTTPStatus.INTERNAL_SERVER_ERROR
+    resp = [
+        RepeatableActivityCreated(
+            user_id=view.author_id,
+            post_id=view.post_id,
+            date_created=view.view_date,
+            id=view.id
+        ).model_dump()
+        for view in views
+    ]
+    return resp, HTTPStatus.OK

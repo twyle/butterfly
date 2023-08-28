@@ -4,6 +4,7 @@ from ..models.bookmark import Bookmark
 from ..models.user import User
 from ..models.post import Post
 from ..schemas.user import GetUser
+from ..schemas.post import GetPost
 
 
 def create_bookmark(session: Session, activity: CreateActivity) -> Bookmark:
@@ -37,9 +38,9 @@ def list_user_bookmarks(session: Session, user_data: GetUser) -> list[Bookmark]:
         bookmarks: list[Bookmark] = user.bookmarks
     return bookmarks
 
-def list_post_bookmarks(session: Session, activity: CreateActivity):
+def list_post_bookmarks(session: Session, post_data: GetPost):
     with session() as db:
-        post = db.query(Post).filter(Post.id == activity.post_id).first()
+        post = db.query(Post).filter(Post.id == post_data.post_id).first()
         bookmarks: list[Bookmark] = post.bookmarks
     return bookmarks
     

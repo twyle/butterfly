@@ -374,9 +374,9 @@ main .container{
      gap: 0.5rem;
  }
  
- .middle .feed .action-buttons .interaction-button i{
+ /* .middle .feed .action-buttons .interaction-button i{
      display: none;
- }
+ } */
  
  .middle .feed .action-buttons .interaction-button i.active{
      display: block;
@@ -388,12 +388,24 @@ main .container{
     gap: 0.5rem;
 }
 
-.middle .feed .action-buttons .owner-actions .bookmark i{
+/* .middle .feed .action-buttons .owner-actions .bookmark i{
     display: none;
-}
+} */
 
 .middle .feed .action-buttons .owner-actions .bookmark i.active{
     display: block;
+}
+
+.middle .feed .action-buttons .interaction-button .like-button i{
+    display: none;
+}
+
+.middle .feed .action-buttons .interaction-button .like-button i.active{
+    display: inline; 
+}
+
+.middle .feed .action-buttons .interaction-button .like-button .fa-solid{
+    color: red;
 }
 
  .middle .liked-by{

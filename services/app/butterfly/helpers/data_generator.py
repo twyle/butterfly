@@ -1,6 +1,6 @@
 from ..blueprints.database.schemas.user import UserCreate
 from ..blueprints.database.schemas.post import CreatePost
-from ..blueprints.database.models import User, Post, Like
+from ..blueprints.database.models import User, Post, Like, Comment, Bookmark
 from ..blueprints.database.database import get_db
 from ..blueprints.database.crud.user import create_user
 from ..blueprints.database.crud.post import create_post
@@ -61,6 +61,36 @@ def generate_likes(users: list[User], posts: list[Post], likes_count: int = 100)
         ids.add((author_id, post_id))
     return likes
 
+def generate_bookmarks(users: list[User], posts: list[Post], bookmarks_count: int = 100) -> list[Bookmark]:
+    """Generate bookmarks."""
+    bookmarks: list[Bookmark] = []
+    ids = set()
+    for _ in range(bookmarks_count):
+        author_id: str = random.choice(users).id
+        post_id: str = random.choice(posts).id
+        bookmark: bookmark = Bookmark(author_id=author_id, post_id=post_id)
+        if (author_id, post_id) not in ids:
+            bookmarks.append(bookmark)
+        ids.add((author_id, post_id))
+    return bookmarks
+
+def generate_comments(users: list[User], posts: list[Post], comments_count: int = 500) -> list[Like]:
+    """Generate likes."""
+    comments: list[Comment] = []
+    ids = set()
+    for _ in range(comments_count):
+        author_id: str = random.choice(users).id
+        post_id: str = random.choice(posts).id
+        comment: comment = Comment(
+            id='Comment_' + str(uuid4()),
+            author_id=author_id, 
+            post_id=post_id, 
+            comment_text=fake.text() )
+        if (author_id, post_id) not in ids:
+            comments.append(comment)
+        ids.add((author_id, post_id))
+    return comments
+
 def add_user(user: User) -> User:
     with get_db() as session:
         session.add(user)
@@ -80,9 +110,26 @@ def add_likes(likes: list[Like]) -> None:
         for like in likes:
             session.add(like)
         session.commit()
+        
+def add_bookmarks(bookmarks: list[Bookmark]) -> None:
+    with get_db() as session:
+        for bookmark in bookmarks:
+            session.add(bookmark)
+        session.commit()
     
+def add_comments(comments: list[Comment]) -> None:
+    with get_db() as session:
+        for comment in comments:
+            session.add(comment)
+        session.commit()
     
-def generate_data(user_count: int = 20, posts_count: int = 200, likes_count: int = 500):
+def generate_data(
+    user_count: int = 20, 
+    posts_count: int = 200, 
+    likes_count: int = 500, 
+    comments_count: int = 200,
+    bookmarks_count: int = 600
+    ):
     users = generate_users(user_count)
     users = [
         add_user(user) for user in users
@@ -93,4 +140,10 @@ def generate_data(user_count: int = 20, posts_count: int = 200, likes_count: int
     ]
     likes: list[Like] = generate_likes(users, posts, likes_count=likes_count)
     add_likes(likes)
+    
+    comments: list[Comment] = generate_comments(users, posts, comments_count=comments_count)
+    add_comments(comments)
+    
+    bookmarks: list[Bookmark] = generate_bookmarks(users, posts, bookmarks_count=bookmarks_count)
+    add_bookmarks(bookmarks)
     

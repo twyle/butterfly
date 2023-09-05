@@ -46,3 +46,11 @@ def list_post_comments(session: Session, post_data: GetPost):
         comments: list[Comment] = post.comments
     return comments
     
+def get_key_comment(session: Session, post_data: GetPost):
+    from random import choice
+    with session() as db:
+        post: Post = db.query(Post).filter(Post.id == post_data.post_id).first()
+        comments: list[Comment] = post.comments
+        for comment in comments:
+            comment.author
+    return choice(comments) if comments else None

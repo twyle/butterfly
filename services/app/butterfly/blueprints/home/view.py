@@ -23,17 +23,18 @@ from ..database.crud.like import (
     get_key_like
 )
 from ..database.crud.comment import (
-    create_comment, list_user_comments
+    create_comment, list_user_comments, list_post_comments
 )
 from pydantic import ValidationError
 from sqlalchemy.exc import OperationalError, IntegrityError
 from ..database.schemas.post import (
     CreatePost, CreatedPost, GetPost, GetPosts, UpdatePost, PostSchema, PostAuthor, 
-    PostLike
+    PostLike, KeyComment
 )
 from ..database.crud.post import (
     create_post, get_post, get_posts, delete_post, update_post
 )
+from ..database.crud.comment import get_key_comment
 from datetime import datetime
 from ..database.models.post import Post
 
@@ -88,7 +89,18 @@ def home_page():
             key_like=key_like,
             likes_count=len(post_likes)
         )
-        print(post_like)
+        key_comment: Comment = get_key_comment(session=get_db, post_data=GetPost(post_id=post.id))
+        if key_comment:
+            key_comment_author = PostAuthor(
+                id=key_comment.author.id,
+                profile_picture=url_for('static', filename=f'img/{key_comment.author.profile_picture_url}'),
+                name=key_comment.author.first_name,
+            )
+            key_comment: KeyComment = KeyComment(
+                author=key_comment_author,
+                text=key_comment.comment_text,
+                comments_count=len(list_post_comments(session=get_db, post_data=GetPost(post_id=post.id)))
+            )
         post_schema: PostSchema = PostSchema(
             id=post.id,
             text=post.text,
@@ -97,6 +109,7 @@ def home_page():
             date_published=str(int((post.date_published - datetime.now()).seconds/60)),
             author=post_author,
             like=post_like,
+            key_comment=key_comment,
             bookmarked=has_bookmarked(get_db, CreateActivity(user_id=user.id, post_id=post.id))
         ).model_dump()
         created_posts.append(post_schema)

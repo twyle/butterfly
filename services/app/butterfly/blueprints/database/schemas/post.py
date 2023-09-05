@@ -42,6 +42,11 @@ class PostLike(BaseModel):
     key_like: Optional[PostAuthor] = None
     likes_count: Optional[int] = Field(default=0)
     
+class KeyComment(BaseModel):
+    author: PostAuthor
+    text: str
+    comments_count: int
+    
 class PostSchema(BaseModel):
     id: str
     text: str
@@ -51,3 +56,4 @@ class PostSchema(BaseModel):
     location: str
     like: PostLike
     bookmarked: bool
+    key_comment: Optional[KeyComment] = None

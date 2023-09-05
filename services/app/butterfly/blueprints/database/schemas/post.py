@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import datetime
 
@@ -36,6 +36,12 @@ class PostAuthor(BaseModel):
     profile_picture: str
     name: str
     
+class PostLike(BaseModel):
+    liked: bool
+    liked_by: Optional[list[PostAuthor]] = Field(default_factory=list)
+    key_like: Optional[PostAuthor] = None
+    likes_count: Optional[int] = Field(default=0)
+    
 class PostSchema(BaseModel):
     id: str
     text: str
@@ -43,3 +49,5 @@ class PostSchema(BaseModel):
     author: PostAuthor
     date_published: str
     location: str
+    like: PostLike
+    bookmarked: bool

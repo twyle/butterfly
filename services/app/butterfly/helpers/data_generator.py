@@ -1,6 +1,6 @@
 from ..blueprints.database.schemas.user import UserCreate
 from ..blueprints.database.schemas.post import CreatePost
-from ..blueprints.database.models import User, Post
+from ..blueprints.database.models import User, Post, Like
 from ..blueprints.database.database import get_db
 from ..blueprints.database.crud.user import create_user
 from ..blueprints.database.crud.post import create_post
@@ -35,7 +35,7 @@ def generate_posts(authors: list[User], count: int = 100) -> list[Post]:
     cities = [fake.city() for _ in range(10)]
     posts_text = [fake.text() for _ in range(count)]
     dates_published = (datetime.now() + timedelta(minutes=random.randint(1,60)) for _ in range(count))
-    post_images = [f'feed-{i}.jpg' for i in range(8)]
+    post_images = [f'feed-{i}.jpg' for i in range(1,8)]
     return [
         Post(
             id='Post_' + str(uuid4()),
@@ -48,6 +48,19 @@ def generate_posts(authors: list[User], count: int = 100) -> list[Post]:
         for text, d in zip(posts_text, dates_published)
     ]
     
+def generate_likes(users: list[User], posts: list[Post], likes_count: int = 100) -> list[Like]:
+    """Generate likes."""
+    likes: list[Like] = []
+    ids = set()
+    for _ in range(likes_count):
+        author_id: str = random.choice(users).id
+        post_id: str = random.choice(posts).id
+        like: Like = Like(author_id=author_id, post_id=post_id)
+        if (author_id, post_id) not in ids:
+            likes.append(like)
+        ids.add((author_id, post_id))
+    return likes
+
 def add_user(user: User) -> User:
     with get_db() as session:
         session.add(user)
@@ -61,15 +74,23 @@ def add_post(post: Post) -> Post:
         session.commit()
         session.refresh(post)
     return post
+
+def add_likes(likes: list[Like]) -> None:
+    with get_db() as session:
+        for like in likes:
+            session.add(like)
+        session.commit()
     
     
-def generate_data(user_count: int = 10, posts_count: int = 100):
+def generate_data(user_count: int = 20, posts_count: int = 200, likes_count: int = 500):
     users = generate_users(user_count)
     users = [
         add_user(user) for user in users
     ]
-    posts: list[Post] = generate_posts(users)
+    posts: list[Post] = generate_posts(users, count=posts_count)
     posts: list[Post] = [
         add_post(post) for post in posts
     ]
+    likes: list[Like] = generate_likes(users, posts, likes_count=likes_count)
+    add_likes(likes)
     

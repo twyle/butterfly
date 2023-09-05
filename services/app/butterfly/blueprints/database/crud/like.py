@@ -40,7 +40,18 @@ def list_user_likes(session: Session, user_data: GetUser) -> list[Like]:
 
 def list_post_likes(session: Session, post_data: GetPost):
     with session() as db:
-        post = db.query(Post).filter(Post.id == post_data.post_id).first()
+        post: Post = db.query(Post).filter(Post.id == post_data.post_id).first()
         likes: list[Like] = post.likes
+        for like in likes:
+            like.author
     return likes
+
+def get_key_like(session: Session, post_data: GetPost):
+    from random import choice
+    with session() as db:
+        post: Post = db.query(Post).filter(Post.id == post_data.post_id).first()
+        likes: list[Like] = post.likes
+        for like in likes:
+            like.author
+    return choice(likes).author if likes else None
     

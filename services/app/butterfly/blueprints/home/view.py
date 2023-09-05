@@ -10,7 +10,7 @@ from ..database.models import (
 from ..database.schemas.user import GetUser
 from ..database.schemas.post import GetPost
 from ..database.database import get_db
-from ..database.crud.user import get_user
+from ..database.crud.user import get_user, get_random_user
 from ..database.crud.post import get_post
 from ..database.crud.bookmark import (
     create_bookmark, delete_bookmark, list_user_bookmarks, has_bookmarked
@@ -19,7 +19,8 @@ from ..database.crud.view import (
     create_view, list_user_views, has_viewed
 )
 from ..database.crud.like import (
-    create_like, delete_like, list_user_likes, has_liked
+    create_like, delete_like, list_user_likes, has_liked, list_post_likes, 
+    get_key_like
 )
 from ..database.crud.comment import (
     create_comment, list_user_comments
@@ -27,11 +28,13 @@ from ..database.crud.comment import (
 from pydantic import ValidationError
 from sqlalchemy.exc import OperationalError, IntegrityError
 from ..database.schemas.post import (
-    CreatePost, CreatedPost, GetPost, GetPosts, UpdatePost, PostSchema, PostAuthor
+    CreatePost, CreatedPost, GetPost, GetPosts, UpdatePost, PostSchema, PostAuthor, 
+    PostLike
 )
 from ..database.crud.post import (
     create_post, get_post, get_posts, delete_post, update_post
 )
+from datetime import datetime
 from ..database.models.post import Post
 
 
@@ -43,12 +46,14 @@ home = Blueprint("home", __name__)
 @home.route("/index")
 def home_page():
     """Render the home page."""
+    user: User = get_random_user(get_db)
     current_user = {
-        'user_id': 1,
-        'profile_picture': url_for('static', filename='img/default.jpeg')
+        'profile_picture': url_for('static', filename=f'img/{user.profile_picture_url}'),
+        'user_id': user.id,
+        'user_name': user.first_name
     }
-    offset: str = request.args.get('offset')
-    limit: str = request.args.get('limit')
+    offset: str = request.args.get('offset', 0)
+    limit: str = request.args.get('limit', 10)
     try:
         posts = get_posts(get_db, GetPosts(offset=offset, limit=limit))
     except (OperationalError, IntegrityError) as e:
@@ -57,23 +62,46 @@ def home_page():
             return {'Error': 'The application is experiencing a tempoary error. Please try again in a few minutes.'}, HTTPStatus.INTERNAL_SERVER_ERROR
     created_posts = []
     for post in posts:
-        print(post.author.profile_picture_url)
         post_author: PostAuthor = PostAuthor(
             id=post.author.id,
             profile_picture=url_for('static', filename=f'img/{post.author.profile_picture_url}'),
             name=post.author.first_name
         )
+        post_likes = [
+            PostAuthor(
+                id=like.author.id,
+                profile_picture=url_for('static', filename=f'img/{like.author.profile_picture_url}'),
+                name=like.author.first_name
+            )
+            for like in list_post_likes(session=get_db, post_data=GetPost(post_id=post.id))
+        ]
+        key_like: User = get_key_like(session=get_db, post_data=GetPost(post_id=post.id))
+        if key_like:
+            key_like = PostAuthor(
+                id=key_like.id,
+                profile_picture=url_for('static', filename=f'img/{key_like.profile_picture_url}'),
+                name=key_like.first_name
+            )
+        post_like: PostLike = PostLike(
+            liked=has_liked(get_db, CreateActivity(user_id=user.id, post_id=post.id)),
+            liked_by=post_likes,
+            key_like=key_like,
+            likes_count=len(post_likes)
+        )
+        print(post_like)
         post_schema: PostSchema = PostSchema(
             id=post.id,
             text=post.text,
             image=url_for('static', filename=f'img/{post.image_url}'),
             location=post.location,
-            date_published='10',
-            author=post_author
+            date_published=str(int((post.date_published - datetime.now()).seconds/60)),
+            author=post_author,
+            like=post_like,
+            bookmarked=has_bookmarked(get_db, CreateActivity(user_id=user.id, post_id=post.id))
         ).model_dump()
         created_posts.append(post_schema)
     return render_template("home/home.html", current_user=current_user, posts=created_posts), HTTPStatus.OK
-
+    #return created_posts
 
 @home.route("/like", methods=["POST"])
 def like_one_post():

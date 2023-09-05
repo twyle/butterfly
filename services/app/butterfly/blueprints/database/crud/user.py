@@ -63,6 +63,12 @@ def get_user_by_email(session: Session, email: str):
         user = db.query(User).filter(User.email_address == email).first()
     return user
 
+def get_random_user(session: Session):
+    from random import choice
+    with session() as db:
+        user = choice(db.query(User).all())
+    return user
+
 def get_user(session: Session, user_data: GetUser):
     with session() as db:
         user = db.query(User).filter(User.id == user_data.user_id).first()

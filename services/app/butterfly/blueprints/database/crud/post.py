@@ -106,8 +106,10 @@ def get_post(session: Session, post_data: GetPost):
 
 def get_posts(session: Session, post_data: GetPosts):
     with session() as db:
-        posts = db.query(Post).offset(post_data.offset).limit(post_data.limit).all()
-    return posts
+        posts: list[Post] = db.query(Post).offset(post_data.offset).limit(post_data.limit).all()
+        for post in posts:
+            post.author
+        return posts
 
 def delete_post(session: Session, post_data: GetPost):
     with session() as db:

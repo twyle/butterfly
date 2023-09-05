@@ -24,6 +24,7 @@ class User(Base):
     registration_date: Mapped[datetime] = mapped_column(default_factory=datetime.utcnow)
     role: Mapped[str] = mapped_column(default='user')
     activated: Mapped[bool] = mapped_column(default=False)
+    profile_picture_url: Mapped[str] = mapped_column(default='default.jpeg')
     
     posts = relationship('Post', back_populates='author')
     bookmarks = relationship('Bookmark', back_populates='author')

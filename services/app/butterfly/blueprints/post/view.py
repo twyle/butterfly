@@ -2,7 +2,7 @@
 from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for
 from http import HTTPStatus
 from ..database.schemas.post import (
-    CreatePost, CreatedPost, GetPost, GetPosts, UpdatePost
+    CreatePost, CreatedPost, GetPost, GetPosts, UpdatePost, PostSchema, PostAuthor
 )
 from ..database.crud.post import (
     create_post, get_post, get_posts, delete_post, update_post
@@ -163,18 +163,34 @@ def get_all_posts():
             print(e)
             # Send email to
             return {'Error': 'The application is experiencing a tempoary error. Please try again in a few minutes.'}, HTTPStatus.INTERNAL_SERVER_ERROR
-    posts = [
-        CreatedPost(
+    created_posts = []
+    for post in posts:
+        post_author: PostAuthor = PostAuthor(
+            id=post.author.id,
+            profile_picture=url_for('static', filename='img/default.jpeg'),
+            name=post.author.first_name
+        )
+        post_schema: PostSchema = PostSchema(
             id=post.id,
-            location=post.location,
             text=post.text,
-            image_url=post.image_url,
-            author_id=post.author_id,
-            date_published=post.date_published
+            image=url_for('static', filename=f'img/{post.image_url}'),
+            location=post.location,
+            date_published='10',
+            author=post_author
         ).model_dump()
-        for post in posts
-    ]
-    return posts, HTTPStatus.OK
+        created_posts.append(post_schema)
+    # posts = [
+    #     CreatedPost(
+    #         id=post.id,
+    #         location=post.location,
+    #         text=post.text,
+    #         image_url=post.image_url,
+    #         author_id=post.author_id,
+    #         date_published=post.date_published
+    #     ).model_dump()
+    #     for post in posts
+    # ]
+    return created_posts, HTTPStatus.OK
 
 
 

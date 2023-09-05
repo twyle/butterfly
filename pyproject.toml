@@ -20,6 +20,7 @@ celery = "^5.3.1"
 elasticsearch = "7.17.7"
 Flask-Bcrypt = "^1.0.1"
 PyJWT = "^2.8.0"
+Faker = "^19.3.1"
 
 [tool.poetry.dev-dependencies]
 

@@ -191,6 +191,17 @@ docs = ["sphinx (<1.7)", "sphinx-rtd-theme"]
 requests = ["requests (>=2.4.0,<3.0.0)"]
 
 [[package]]
+name = "faker"
+version = "19.3.1"
+description = "Faker is a Python package that generates fake data for you."
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[package.dependencies]
+python-dateutil = ">=2.4"
+
+[[package]]
 name = "flask"
 version = "2.3.3"
 description = "A simple framework for building complex web applications."
@@ -557,7 +568,7 @@ watchdog = ["watchdog (>=2.3)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "84579b50b43a3979d1bf87f8ffdae20a0815675a6296fe9a9ff2ce75dff540e8"
+content-hash = "db7a1bfd1ba84f592878a9846e330617370a50a841de50103e45d6f1a52b43f8"
 
 [metadata.files]
 amqp = []
@@ -574,6 +585,7 @@ click-plugins = []
 click-repl = []
 colorama = []
 elasticsearch = []
+faker = []
 flask = []
 flask-bcrypt = []
 greenlet = []

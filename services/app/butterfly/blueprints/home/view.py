@@ -1,5 +1,5 @@
 """This module contains routes for the app."""
-from flask import Blueprint, render_template, jsonify, request
+from flask import Blueprint, render_template, jsonify, request, url_for
 from http import HTTPStatus
 from ..database.schemas.activity import (
     ActivityCreated, CreateActivity, RepeatableActivityCreated,
@@ -26,6 +26,13 @@ from ..database.crud.comment import (
 )
 from pydantic import ValidationError
 from sqlalchemy.exc import OperationalError, IntegrityError
+from ..database.schemas.post import (
+    CreatePost, CreatedPost, GetPost, GetPosts, UpdatePost, PostSchema, PostAuthor
+)
+from ..database.crud.post import (
+    create_post, get_post, get_posts, delete_post, update_post
+)
+from ..database.models.post import Post
 
 
 home = Blueprint("home", __name__)
@@ -36,8 +43,36 @@ home = Blueprint("home", __name__)
 @home.route("/index")
 def home_page():
     """Render the home page."""
-    current_user = {'username': 'lyle'}
-    return render_template("home/home.html", current_user=current_user), HTTPStatus.OK
+    current_user = {
+        'user_id': 1,
+        'profile_picture': url_for('static', filename='img/default.jpeg')
+    }
+    offset: str = request.args.get('offset')
+    limit: str = request.args.get('limit')
+    try:
+        posts = get_posts(get_db, GetPosts(offset=offset, limit=limit))
+    except (OperationalError, IntegrityError) as e:
+            print(e)
+            # Send email to
+            return {'Error': 'The application is experiencing a tempoary error. Please try again in a few minutes.'}, HTTPStatus.INTERNAL_SERVER_ERROR
+    created_posts = []
+    for post in posts:
+        print(post.author.profile_picture_url)
+        post_author: PostAuthor = PostAuthor(
+            id=post.author.id,
+            profile_picture=url_for('static', filename=f'img/{post.author.profile_picture_url}'),
+            name=post.author.first_name
+        )
+        post_schema: PostSchema = PostSchema(
+            id=post.id,
+            text=post.text,
+            image=url_for('static', filename=f'img/{post.image_url}'),
+            location=post.location,
+            date_published='10',
+            author=post_author
+        ).model_dump()
+        created_posts.append(post_schema)
+    return render_template("home/home.html", current_user=current_user, posts=created_posts), HTTPStatus.OK
 
 
 @home.route("/like", methods=["POST"])

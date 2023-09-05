@@ -233,6 +233,17 @@ bcrypt = ">=3.1.1"
 Flask = "*"
 
 [[package]]
+name = "flask-cors"
+version = "4.0.0"
+description = "A Flask extension adding a decorator for CORS support"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+Flask = ">=0.9"
+
+[[package]]
 name = "greenlet"
 version = "2.0.2"
 description = "Lightweight in-process concurrent programming"
@@ -568,7 +579,7 @@ watchdog = ["watchdog (>=2.3)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "db7a1bfd1ba84f592878a9846e330617370a50a841de50103e45d6f1a52b43f8"
+content-hash = "1e6c2efcc08e0aebb08014015da44b0ae29ed6cf1ace24b31649b71cd7933d1a"
 
 [metadata.files]
 amqp = []
@@ -588,6 +599,7 @@ elasticsearch = []
 faker = []
 flask = []
 flask-bcrypt = []
+flask-cors = []
 greenlet = []
 gunicorn = []
 itsdangerous = []

@@ -10,7 +10,7 @@ Example:
 """
 from flask import Flask
 
-from .extensions import bcrypt
+from .extensions import bcrypt, cors
 
 
 def register_extensions(app: Flask) -> None:
@@ -22,3 +22,4 @@ def register_extensions(app: Flask) -> None:
         The Flask app instance.
     """
     bcrypt.init_app(app)
+    cors.init_app(app)

@@ -17,7 +17,7 @@ def generate_users(count: int = 10) -> list[UserCreate]:
     first_names = (fake.name() for _ in range(count))
     last_names = (fake.name() for _ in range(count))
     emails = (fake.email() for i in range(count))
-    profile_pictures = [f'profile-{i}.jpg' for i in range(count)]
+    profile_pictures = [f'profile-{i}.jpg' for i in range(21)]
     return [
         User(
             id='User_' + str(uuid4()),
@@ -124,11 +124,11 @@ def add_comments(comments: list[Comment]) -> None:
         session.commit()
     
 def generate_data(
-    user_count: int = 20, 
-    posts_count: int = 200, 
-    likes_count: int = 500, 
-    comments_count: int = 200,
-    bookmarks_count: int = 600
+    user_count: int = 200, 
+    posts_count: int = 500, 
+    likes_count: int = 2000, 
+    comments_count: int = 1000,
+    bookmarks_count: int = 1500
     ):
     users = generate_users(user_count)
     users = [

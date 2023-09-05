@@ -25,6 +25,7 @@ from ..database.crud.view import (
     list_post_views
 )
 from ..database.crud.comment import list_post_comments
+from ..home.helpers import load_posts
 
 post = Blueprint("post", __name__)
 
@@ -192,7 +193,13 @@ def get_all_posts():
     # ]
     return created_posts, HTTPStatus.OK
 
-
+@post.route("/load_more_posts", methods=["GET"])
+def load_more_posts():
+    """Get a single post."""
+    offset: str = request.args.get('offset', 0)
+    limit: str = request.args.get('limit', 10)
+    more_posts = load_posts(limit=int(limit), offset=int(offset))
+    return more_posts
 
 @post.route("/likes", methods=["GET"])
 def get_post_likes():

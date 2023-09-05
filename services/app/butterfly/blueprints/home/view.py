@@ -54,7 +54,7 @@ def home_page():
         'user_name': user.first_name
     }
     offset: str = request.args.get('offset', 0)
-    limit: str = request.args.get('limit', 10)
+    limit: str = request.args.get('limit', 4)
     try:
         posts = get_posts(get_db, GetPosts(offset=offset, limit=limit))
     except (OperationalError, IntegrityError) as e:

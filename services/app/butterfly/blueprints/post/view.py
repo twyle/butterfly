@@ -21,6 +21,7 @@ from ..database.crud.like import list_post_likes
 from ..database.models.like import Like
 from ..database.models.comment import Comment
 from ..database.models.view import View
+from ..database.schemas.comment import CommentSchema
 from ..database.crud.view import (
     list_post_views
 )
@@ -201,6 +202,39 @@ def load_more_posts():
     more_posts = load_posts(limit=int(limit), offset=int(offset))
     return more_posts
 
+@post.route("/load_more_comments", methods=["GET"])
+def load_more_comments():
+    """Get a single post."""
+    offset: str = request.args.get('offset', 0)
+    limit: str = request.args.get('limit', 10)
+    try:
+        post_data = GetPost(post_id=request.args.get('post_id'))
+    except ValidationError:
+        return {'error': 'Invalid input: you probably did not include the post id.'}, HTTPStatus.BAD_REQUEST
+    try:
+        post: Post = get_post(session=get_db, post_data=post_data)
+        if not post:
+            return {'Error': f'post with id {post_data.post_id} does not exists'}, HTTPStatus.NOT_FOUND
+        comments: list[Comment] = list_post_comments(session=get_db, post_data=post_data, offset=offset, limit=limit)
+    except (OperationalError, IntegrityError) as e:
+        print(e)
+        # Send email to
+        return {'Error': 'The application is experiencing a tempoary error. Please try again in a few minutes.'}, HTTPStatus.INTERNAL_SERVER_ERROR
+    post_comments = []
+    for comment in comments:
+        comment_author: PostAuthor = PostAuthor(
+            id=comment.author.id,
+            profile_picture=url_for('static', filename=f'img/{comment.author.profile_picture_url}'),
+            name=comment.author.first_name
+        )
+        comment_schema: CommentSchema = CommentSchema(
+            author=comment_author,
+            text=comment.comment_text
+        )
+        post_comments.append(comment_schema.model_dump())
+    return post_comments
+
+
 @post.route("/likes", methods=["GET"])
 def get_post_likes():
     """Get a posts likes."""
@@ -258,6 +292,8 @@ def get_post_bookmarks():
 @post.route("/comments", methods=["GET"])
 def get_post_comments():
     """Get a posts comments."""
+    offset: str = request.args.get('offset', 0)
+    limit: str = request.args.get('limit', 10)
     try:
         post_data = GetPost(post_id=request.args.get('post_id'))
     except ValidationError:
@@ -266,7 +302,7 @@ def get_post_comments():
         post: Post = get_post(session=get_db, post_data=post_data)
         if not post:
             return {'Error': f'post with id {post_data.post_id} does not exists'}, HTTPStatus.NOT_FOUND
-        comments: list[Comment] = list_post_comments(session=get_db, post_data=post_data)
+        comments: list[Comment] = list_post_comments(session=get_db, post_data=post_data, offset=offset, limit=limit)
     except (OperationalError, IntegrityError) as e:
         print(e)
         # Send email to

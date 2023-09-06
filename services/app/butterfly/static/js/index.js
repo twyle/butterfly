@@ -5,6 +5,47 @@ const posts = document.querySelector('.feeds')
 var postsOffSet = 2
 const postsLimit = 2
 
+//THESE ARE USED TO FETCH NEW COMMENTS
+var commentsOffSet = 2
+const commentsLimit = 2
+
+//VIEW COMMENTS
+const postComments = document.querySelector('.post-comments')
+document.addEventListener('click', (e) => {
+    if(e.target.classList.contains('view-comments-btn')){
+        const postId = e.target.closest('.feed').id
+        const postCommentsPopup = postComments.querySelector('.post-comments-popup')
+        var child = postCommentsPopup.lastElementChild; 
+        while (child) {
+            postCommentsPopup.removeChild(child);
+            child = postCommentsPopup.lastElementChild;
+        }
+        postCommentsPopup.id = postId
+        fetch(`http://127.0.0.1:5000/post/load_more_comments?post_id=${postId}`, {
+            method: 'GET'
+        }).then(
+            response => response.json()
+        ).then(
+            response => {
+                commentsOffSet = commentsOffSet + commentsLimit;
+                console.log(JSON.stringify(response))
+                insertNewComments(response,postCommentsPopup)
+            }
+        )
+        postComments.style.display = 'block'
+        postCommentsPopup
+    }
+})
+
+const closeCommentsBtn = document.querySelector('.create-post-btn')
+
+document.addEventListener('click', (e) => {
+    if(e.target.classList.contains('close-comments')){
+        postComments.style.display = 'none'
+    }
+})
+
+
 // THE OBSERVER THAT LOADS POSTS DYNAMICALLY
 const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
@@ -126,4 +167,56 @@ const createPost = (new_post, feed) => {
     postPhoto.appendChild(postImg)
     feed.appendChild(postText)
     feed.appendChild(postPhoto)
+}
+
+// THE OBSERVER THAT LOADS COMMENTS DYNAMICALLY
+const commentsObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+            const postCommentsPopup = postComments.querySelector('.post-comments-popup')
+            const postId = postCommentsPopup.id
+            fetch(`http://127.0.0.1:5000/post/load_more_comments?post_id=${postId}`, {
+                method: 'GET'
+            }).then(
+                response => response.json()
+            ).then(
+                response => {
+                    commentsOffSet = commentsOffSet + commentsLimit;
+                    console.log(JSON.stringify(response))
+                    insertNewComments(response,postCommentsPopup)
+                }
+            )
+            console.log('comments')
+        }
+    })
+},
+    {
+        threshold: 0.2
+    }
+)
+
+const commentsLoader = document.querySelectorAll('.comments-loader')
+
+for (let i = 0; i < commentsLoader.length; i++) {
+    const elements = commentsLoader[i];
+
+    commentsObserver.observe(elements);
+}
+
+const insertNewComments = (new_comments,postCommentsPopup) => {
+    new_comments.forEach(comment => {
+        const div = document.createElement('div')
+        const profilePhoto = document.createElement('div')
+        profilePhoto.classList.add('profile-photo')
+        profilePhoto.classList.add('profile-menu')
+        const img = document.createElement('img')
+        img.src = comment.author.profile_picture
+        profilePhoto.appendChild(img)
+        const body = document.createElement('div')
+        body.classList.add('notification-body')
+        body.innerHTML = `<b>${comment.author.name}</b> ${comment.text}`
+        div.appendChild(profilePhoto)
+        div.appendChild(body)
+        postCommentsPopup.appendChild(div)
+    })
 }

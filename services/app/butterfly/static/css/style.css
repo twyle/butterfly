@@ -615,7 +615,8 @@ form p a{
 .post-comments{
     background: rga(255,255,255,0.5);
     width: 50vw;
-    height: fit-content;
+    /* height: fit-content; */
+    max-height: 20vh;
     position: fixed;
     top: 15vh;
     left: 20vw;
@@ -632,6 +633,8 @@ form p a{
     border-radius: var(--card-border-radius);
     width: 100%;
     box-shadow: 0 0 1rem var(--color-primary);
+    max-height: 50vh;
+    overflow: scroll;
 }
 
 .post-comments .post-comments-popup > div{

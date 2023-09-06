@@ -40,11 +40,14 @@ def list_user_post_comments(session: Session, activity: CreateActivity) -> list[
         comments: list[Comment] = db.query(Comment).filter(Comment.author_id == activity.user_id, Comment.post_id==activity.post_id).all()
     return comments
 
-def list_post_comments(session: Session, post_data: GetPost):
+def list_post_comments(session: Session, post_data: GetPost, offset: int = 0, limit: int = 5):
     with session() as db:
         post: Post = db.query(Post).filter(Post.id == post_data.post_id).first()
         comments: list[Comment] = post.comments
-    return comments
+        for comment in comments:
+            comment.author
+        print(offset,limit)
+    return comments[offset:limit]
     
 def get_key_comment(session: Session, post_data: GetPost):
     from random import choice

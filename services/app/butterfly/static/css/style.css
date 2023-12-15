@@ -138,6 +138,10 @@ nav .create{
     gap: 2rem;
 }
 
+nav .create .large{
+    display: none;
+}
+
 .context-menu{
     position: relative;
 }
@@ -703,7 +707,7 @@ form p a{
     100% { transform: rotate(360deg); }
   }
 
-@media screen and (min-width: 992px){
+@media screen and (min-width: 900px){
     .container{
         width: 60%;
         margin: 0 auto;
@@ -728,5 +732,13 @@ form p a{
         top: 20vh;
         left: 30vw;
         font-size: 0.9rem;
+    }
+
+    nav .create .small{
+        display: none;
+    }
+
+    nav .create .large{
+        display: inline;
     }
 }

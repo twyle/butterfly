@@ -9,6 +9,36 @@ const postsLimit = 2
 var commentsOffSet = 2
 const commentsLimit = 2
 
+//search post
+const postSearch = document.querySelector('#post-search')
+var searching = true
+const searchPosts = () => {
+    searching = true
+    const val = postSearch.value.toLowerCase();
+    var child = posts.lastElementChild; 
+    while (child) {
+        posts.removeChild(child);
+        child = posts.lastElementChild;
+    }
+    console.log(val)
+    fetch(`http://localhost:5000/post/load_more_posts?offset=${postsOffSet}&limit=${postsLimit}`, {
+        method: 'GET'
+    }).then(
+        response => response.json()
+    ).then(
+        response => {
+            // postsOffSet = postsOffSet + postsLimit;
+            insertNewPosts(response)
+            console.log(JSON.stringify(response))
+        }
+    )
+    if (!val){
+        searching = false
+    }
+}
+
+postSearch.addEventListener('keyup', searchPosts)
+
 //VIEW COMMENTS
 const postComments = document.querySelector('.post-comments')
 document.addEventListener('click', (e) => {
@@ -49,7 +79,7 @@ document.addEventListener('click', (e) => {
 // THE OBSERVER THAT LOADS POSTS DYNAMICALLY
 const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
-        if (entry.isIntersecting) {
+        if (entry.isIntersecting && !searching) {
             entry.target.classList.add('intersecting')
             fetch(`http://localhost:5000/post/load_more_posts?offset=${postsOffSet}&limit=${postsLimit}`, {
                 method: 'GET'

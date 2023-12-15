@@ -18,10 +18,13 @@
             <h2 class="logo" id="{{ current_user.user_id }}">logo</h2>
             <div class="search-bar">
                 <i class="uil uil-search"></i>
-                <input type="search" name="" id="" placeholder="Search for creators, inspirations and projects.">
+                <input type="search" name="" id="post-search" placeholder="Search for creators, inspirations and projects.">
             </div>
             <div class="create">
-                <button class="btn btn-primary create-post-btn">Create Post</button>
+                <button class="btn btn-primary create-post-btn large">Create Post</button>
+                <button class="btn btn-primary create-post-btn small">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
                 <div class="profile-photo" id="{{ current_user.user_id }}">
                     <img src="{{ current_user.profile_picture }}" alt="">
                 

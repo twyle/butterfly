@@ -90,7 +90,7 @@ def home_page():
             likes_count=len(post_likes)
         )
         key_comment: Comment = get_key_comment(session=get_db, post_data=GetPost(post_id=post.id))
-        if key_comment:
+        if key_comment: 
             key_comment_author = PostAuthor(
                 id=key_comment.author.id,
                 profile_picture=url_for('static', filename=f'img/{key_comment.author.profile_picture_url}'),
